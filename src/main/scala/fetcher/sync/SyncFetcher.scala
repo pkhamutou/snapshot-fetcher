@@ -15,18 +15,19 @@ class SyncFetcher(metric: Metric) {
     */
   def fetch(paths: List[String], peers: List[Peer]): Result[List[Snapshot]] =
     paths.foldLeft[Result[List[Snapshot]]](Right(Nil)) {
-      case (l @ Left(_), _) => l
+      case (l @ Left(_), _)  => l
       case (Right(xs), path) => fetchOne(path, peers).map(_ :: xs)
     }
 
   private[sync] def fetchOne(path: String, peers: List[Peer]): Result[Snapshot] =
     peers.foldLeft[Result[Snapshot]](Left(s"Failed downloading $path")) {
       case (s @ Right(_), _) => s
-      case (l @ Left(_), peer) => peer.fetch(path)
-        .fold(
-          _ => { metric.increment(Metric.failed); l },
-          sa => { metric.increment(Metric.succeeded); Right(sa) }
-        )
+      case (l @ Left(_), peer) =>
+        peer
+          .fetch(path)
+          .fold(
+            _ => { metric.increment(Metric.failed); l },
+            sa => { metric.increment(Metric.succeeded); Right(sa) }
+          )
     }
 }
-

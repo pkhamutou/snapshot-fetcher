@@ -1,6 +1,5 @@
 package fetcher.sync
 
-
 import scala.annotation.tailrec
 
 class SyncRecFetcher(metric: Metric) {
@@ -19,10 +18,11 @@ class SyncRecFetcher(metric: Metric) {
   def fetch(paths: List[String], peers: List[Peer]): Result[List[Snapshot]] = {
 
     @tailrec def run(paths: List[String], acc: Result[List[Snapshot]]): Result[List[Snapshot]] = (acc, paths) match {
-      case (Right(snapshots), path :: xs) => fetchOne(path, peers) match {
-        case Left(error) => Left(error)
-        case Right(snapshot) => run(xs, Right(snapshot :: snapshots))
-      }
+      case (Right(snapshots), path :: xs) =>
+        fetchOne(path, peers) match {
+          case Left(error)     => Left(error)
+          case Right(snapshot) => run(xs, Right(snapshot :: snapshots))
+        }
 
       case (_, _) => acc
     }
@@ -34,20 +34,19 @@ class SyncRecFetcher(metric: Metric) {
 
     @tailrec def run(peers: List[Peer], acc: Result[Snapshot]): Result[Snapshot] = peers match {
       case Nil => acc
-      case peer :: xs => peer.fetch(path) match {
-        case scala.util.Success(s) =>
-          metric.increment(Metric.succeeded)
-          Right(s)
+      case peer :: xs =>
+        peer.fetch(path) match {
+          case scala.util.Success(s) =>
+            metric.increment(Metric.succeeded)
+            Right(s)
 
-        case _ =>
-          metric.increment(Metric.failed)
-          run(xs, acc)
-      }
+          case _ =>
+            metric.increment(Metric.failed)
+            run(xs, acc)
+        }
     }
 
     run(peers, Left(s"Failed downloading $path"))
   }
 
 }
-
-

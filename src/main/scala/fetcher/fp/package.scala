@@ -1,4 +1,3 @@
 package fetcher
 
-package object fp {
-}
+package object fp {}

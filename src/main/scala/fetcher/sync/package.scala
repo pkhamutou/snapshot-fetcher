@@ -17,7 +17,7 @@ package object sync {
   }
 
   object Metric {
-    val failed: String = "downloadFiled"
+    val failed: String    = "downloadFiled"
     val succeeded: String = "downloadSucceeded"
   }
 
