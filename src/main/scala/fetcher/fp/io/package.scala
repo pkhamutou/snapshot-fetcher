@@ -9,11 +9,18 @@ package object io {
   }
 
   trait Peer {
+    def name: String
     def fetch(path: String): IO[String, Snapshot]
   }
 
   trait Metric {
     def increment(name: String): IO[scalaz.ioeffect.Void, Unit]
+  }
+
+  trait Logger {
+
+    def info(msg: String): IO[scalaz.ioeffect.Void, Unit] =
+      IO.sync(println(s"[info] [${java.time.LocalTime.now}] $msg"))
   }
 
   object Metric {
